@@ -167,7 +167,7 @@ class AntiDetectDriver(webdriver.Chrome):
     """
     Search for WebElements Functions
     """
-    def get_element(self, selector_type: By.XPATH | By.CSS_SELECTOR, selector, wait=Wait.SHORT):
+    def get_element(self, selector_type: str, selector, wait=Wait.SHORT):
         """
         Finds a single WebElement using either XPath or Selector.
         Args:
