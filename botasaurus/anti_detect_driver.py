@@ -184,7 +184,7 @@ class AntiDetectDriver(webdriver.Chrome):
         except:
             return None
 
-    def get_elements(self: WebDriver, selector_type: By.XPATH | By.CSS_SELECTOR, selector, wait=Wait.SHORT):
+    def get_elements(self: WebDriver, selector_type: str, selector, wait=Wait.SHORT):
         """
         Finds multiple WebElements using either XPath or Selector.
         Args:
