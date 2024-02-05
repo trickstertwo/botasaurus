@@ -22,7 +22,7 @@ from .decorators_utils import create_directory_if_not_exists
 from .beep_utils import beep_input
 from .local_storage_driver import LocalStorage
 from .opponent import Opponent
-from .utils import read_file, relative_path, sleep_for_n_seconds, sleep_forever
+from .utils import read_file, relative_path, sleep_for_n_seconds, sleep_forever, Selector
 from .wait import Wait
 from .driver_about import AboutBrowser
 from .accept_google_cookies import accept_google_cookies
@@ -167,6 +167,39 @@ class AntiDetectDriver(webdriver.Chrome):
     """
     Search for WebElements Functions
     """
+    def get_element(self, selector_type: By.XPATH | By.CSS_SELECTOR, selector, wait=Wait.SHORT) -> WebElement | None:
+        """
+        Finds a single WebElement using either XPath or Selector.
+        Args:
+            selector_type (str): The type of selector to use (BY.XPATH or BY.CSS_SELECTOR).
+            selector (str): The selector value.
+            wait (float): Optional wait time for the element to be present.
+        Returns:
+            WebElement | None: The located WebElement or None if not found.
+        """
+
+        try:
+            return WebDriverWait(self, wait).until(
+                EC.presence_of_element_located((selector_type, selector))) if wait else self.find_element(selector_type, selector)
+        except:
+            return None
+
+    def get_elements(self: WebDriver, selector_type: By.XPATH | By.CSS_SELECTOR, selector, wait=Wait.SHORT):
+        """
+        Finds multiple WebElements using either XPath or Selector.
+        Args:
+            selector_type (str): The type of selector to use (BY.XPATH or BY.CSS_SELECTOR).
+            selector (str): The selector value.
+            wait (float): Optional wait time for the element to be present.
+        Returns:
+            List[WebElement] | None: List of located WebElements or None if not found.
+        """
+        try:
+            if wait:
+                WebDriverWait(self, wait).until(EC.presence_of_element_located((selector_type, selector)))
+            return self.find_elements(selector_type, selector)
+        except:
+            return None
 
     def get_element_by_xpath(self, xpath, wait=Wait.SHORT) -> WebElement | None:
         """
@@ -275,16 +308,17 @@ class AntiDetectDriver(webdriver.Chrome):
         """
         return self.get_element_by_xpath(f'//*[contains(text(), "{text}")]', wait)
 
-    def exists(self, selector: str, wait=Wait.SHORT) -> bool:
+    def exists(self, selector_type: By.XPATH | By.CSS_SELECTOR, selector: str, wait=Wait.SHORT) -> bool:
         """
         Checks if an element with the specified selector exists on the page.
         Args:
+            selector_type (str): The type of selector to use (BY.XPATH or BY.CSS_SELECTOR).
             selector (str): The CSS selector.
             wait (float): Optional wait time for the element to be present.
         Returns:
             bool: True if the element exists, False otherwise.
         """
-        return True if self.get_element_by_selector(selector, wait) else False
+        return True if self.get_element(selector_type, selector, wait) else False
 
     def text(self, selector: str, wait=Wait.SHORT) -> str | None:
         """
@@ -591,7 +625,26 @@ class AntiDetectDriver(webdriver.Chrome):
 
         input_el.send_keys(text)
 
-    def type_and_confirm(self, selector: str, text: str, wait=Wait.SHORT):
+    def type_and_confirm_by_xpath(self, xpath: str, text: str, wait=Wait.SHORT):
+        """
+        Types the specified text into the input element matched by the CSS selector and confirms with ENTER.
+        Args:
+            xpath (str): The xpath selector.
+            text (str): The text to type into the input element.
+            wait (float): Optional wait time for the element to be present.
+        Returns:
+            None
+        Raises:
+            NoSuchElementException: If the input element with the specified selector is not found.
+        """
+        input_el = self.get_element_by_selector(xpath, wait)
+        if input_el is None:
+            raise NoSuchElementException(f"Cannot locate element with selector: {xpath}")
+
+        input_el.send_keys(text)
+        input_el.send_keys(Keys.ENTER)
+
+    def type_and_confirm_by_selector(self, selector: str, text: str, wait=Wait.SHORT):
         """
         Types the specified text into the input element matched by the CSS selector and confirms with ENTER.
         Args:

@@ -9,6 +9,11 @@ from urllib.error import ContentTooShortError, URLError
 from sys import platform, exit
 
 
+class Selector:
+    XPATH = "xpath"
+    SELECTOR = "selector"
+
+
 def is_mac():
     return platform == "darwin"
 
