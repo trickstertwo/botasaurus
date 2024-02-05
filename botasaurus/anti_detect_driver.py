@@ -308,7 +308,7 @@ class AntiDetectDriver(webdriver.Chrome):
         """
         return self.get_element_by_xpath(f'//*[contains(text(), "{text}")]', wait)
 
-    def exists(self, selector_type: By.XPATH | By.CSS_SELECTOR, selector: str, wait=Wait.SHORT) -> bool:
+    def exists(self, selector_type: str, selector: str, wait=Wait.SHORT) -> bool:
         """
         Checks if an element with the specified selector exists on the page.
         Args:
